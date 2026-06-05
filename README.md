@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -369,7 +368,8 @@
         const PLATFORM_FEE = 0.08;
         const REFERRAL_BONUS = 2;
         const REFERRAL_COMMISSION = 0.03;
-        const SITE_URL = "https://earnig.developermamun.shop/";
+        // ✅ আপডেটেড রেফার লিংক - আপনার সাইটের লিংক
+        const SITE_URL = "https://saimun2519.github.io/unitask/";
         
         const translations = {
             en: { navHome: 'Home', navTask: 'Tasks', navShare: 'Refer', navProfile: 'Profile', deposit: 'Deposit', income: 'Income', browse: 'Browse Tasks', myTasks: 'My Tasks', post: 'Post Task' },
@@ -390,7 +390,6 @@
             setTimeout(() => { if (n.parentNode) n.remove(); }, 3500);
         }
         
-        // ✅ ফিক্সড: কপি টু ক্লিপবোর্ড ফাংশন
         window.copyToClipboard = async function(text, buttonElement) {
             try {
                 await navigator.clipboard.writeText(text);
@@ -401,7 +400,6 @@
                 }, 1500);
                 showNotification('✅ Copied to clipboard!', 'success');
             } catch (err) {
-                // ফলব্যাক মেথড
                 const textarea = document.createElement('textarea');
                 textarea.value = text;
                 document.body.appendChild(textarea);
@@ -450,7 +448,7 @@
         window.showRegister = function() { document.getElementById('loginPage').style.display = 'none'; document.getElementById('registerPage').style.display = 'flex'; document.getElementById('forgotPage').style.display = 'none'; };
         window.showForgotPassword = function() { document.getElementById('loginPage').style.display = 'none'; document.getElementById('registerPage').style.display = 'none'; document.getElementById('forgotPage').style.display = 'flex'; };
         window.changeLanguage = function(lang) { currentLanguage = lang; document.getElementById('navHome').innerText = t('navHome'); document.getElementById('navTask').innerText = t('navTask'); document.getElementById('navShare').innerText = t('navShare'); document.getElementById('navProfile').innerText = t('navProfile'); refreshAllPages(); };
-        window.showAbout = function() { alert('🚀 UniTask v18.0 - Complete Referral System: 2 BDT + 3% Commission'); document.getElementById('profileMenu').style.display = 'none'; };
+        window.showAbout = function() { alert('🚀 UniTask - Earn Money Online'); document.getElementById('profileMenu').style.display = 'none'; };
         
         window.toggleNotificationPanel = function() {
             const panel = document.getElementById('notificationPanel');
@@ -969,6 +967,7 @@
         function renderShare() {
             const container = document.getElementById('sharePage'); if (!currentUser) return;
             const refCode = currentUser.referralCode || currentUser.id?.substring(0, 8) || '';
+            // ✅ আপডেটেড রেফার লিংক - আপনার সাইটের লিংক
             const referLink = `${SITE_URL}?ref=${refCode}`;
             container.innerHTML = `<div class="ref-card"><h3>👥 Refer & Earn</h3><p style="color:#64748b; margin-bottom:4px;">🎁 Get ${REFERRAL_BONUS} BDT per referral + ${REFERRAL_COMMISSION*100}% commission from their earnings!</p><div class="ref-link-box"><span style="font-size:10px; word-break:break-all;">${referLink}</span><i class="fas fa-copy copy-icon" onclick="copyReferLink('${referLink}', this)" title="Copy Link"></i></div><div class="stats-row"><div class="stat-item"><div class="stat-value">${currentUser.referrals || 0}</div><div class="stat-label">Referrals</div></div><div class="stat-item"><div class="stat-value">৳${formatBDT(currentUser.referralEarnings || 0)}</div><div class="stat-label">Total Earned</div></div><div class="stat-item"><div class="stat-value">৳${formatBDT(currentUser.totalReferralCommission || 0)}</div><div class="stat-label">3% Commission</div></div></div><div style="margin-top:12px; background:#f0fdf4; padding:10px; border-radius:12px;"><p style="font-size:11px; color:#2e7d32;"><i class="fas fa-info-circle"></i> Your Referral Code: <strong>${refCode}</strong></p></div></div>`;
         }
@@ -1042,7 +1041,6 @@
             else { document.getElementById('mainApp').style.display = 'none'; document.getElementById('loginPage').style.display = 'flex'; }
         });
         
-        console.log("🚀 UniTask v18.0 - Complete Referral System: 2 BDT + 3% Commission | Copy buttons working!");
+        console.log("🚀 UniTask v18.0 - Referral Link: " + SITE_URL);
     </script>
 </body>
-</html
