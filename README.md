@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -151,12 +152,14 @@
         .stat-label { font-size: 10px; color: #64748b; }
         
         .social-strip { display: flex; justify-content: space-around; background: white; border-radius: 40px; padding: 12px 16px; margin: 12px 0; }
-        .social-icon { width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; color: white; cursor: pointer; }
+        .social-icon { width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; color: white; cursor: pointer; transition: 0.2s; }
+        .social-icon:hover { transform: scale(1.1); }
         .telegram { background: #0088cc; }
         .youtube { background: #ff0000; }
         .facebook { background: #1877f2; }
         .instagram { background: linear-gradient(45deg, #f09433, #d62976, #962fbf); }
-        .support-btn { background: #2e7d32; color: white; padding: 14px; border-radius: 40px; width: 100%; border: none; margin: 8px 0; cursor: pointer; font-weight: 700; }
+        .support-btn { background: #2e7d32; color: white; padding: 14px; border-radius: 40px; width: 100%; border: none; margin: 8px 0; cursor: pointer; font-weight: 700; transition: 0.2s; }
+        .support-btn:hover { background: #1b5e20; }
         
         .ref-card { background: white; border-radius: 24px; padding: 24px; text-align: center; margin: 10px 0; }
         .ref-link-box { background: #f0fdf4; border: 1.5px dashed #2e7d32; border-radius: 16px; padding: 12px 14px; margin: 15px 0; display: flex; justify-content: space-between; align-items: center; }
@@ -177,6 +180,10 @@
         .method-selector { display: flex; gap: 12px; margin-bottom: 16px; }
         .method-btn { flex: 1; padding: 12px; border: 2px solid #e2e8f0; border-radius: 16px; cursor: pointer; font-weight: 700; background: white; }
         .method-btn.active { border-color: #2e7d32; background: #f0fdf4; color: #2e7d32; }
+        
+        /* Limit info text */
+        .limit-info { font-size: 10px; color: #64748b; margin-top: 4px; display: block; text-align: center; }
+        .limit-note { font-size: 10px; color: #64748b; margin-top: 2px; }
         
         @media (max-width: 480px) {
             .action-btn { padding: 5px 10px; font-size: 10px; }
@@ -321,8 +328,43 @@
         </div>
     </div>
     
-    <div class="modal-overlay" id="depositModal"><div class="modal-content"><h3>💰 Add Deposit</h3><div class="method-selector"><button class="method-btn active" id="methodBkash" onclick="window.selectDepositMethod('bkash')">📱 bKash</button><button class="method-btn" id="methodNagad" onclick="window.selectDepositMethod('nagad')">📱 Nagad</button></div><div style="background:#f0fdf4; padding:14px; border-radius:14px; margin:10px 0; text-align:center;">Send to: <strong id="depositNumber">01798792581</strong></div><input type="text" id="depositTrxId" class="input-field" placeholder="Transaction ID"><input type="text" id="depositFromAccount" class="input-field" placeholder="Your Account Number"><input type="number" id="depositAmount" class="input-field" placeholder="Amount (BDT) - Min 50" min="50"><button class="btn-primary" onclick="window.addDeposit()">Submit Deposit Request</button><button class="btn-primary btn-cancel" onclick="window.closeModal('depositModal')">Cancel</button></div></div>
-    <div class="modal-overlay" id="withdrawModal"><div class="modal-content"><h3>💸 Withdraw Income</h3><div class="method-selector"><button class="method-btn active" id="wMethodBkash" onclick="window.selectWithdrawMethod('bkash')">📱 bKash</button><button class="method-btn" id="wMethodNagad" onclick="window.selectWithdrawMethod('nagad')">📱 Nagad</button></div><input type="text" id="withdrawAccount" class="input-field" placeholder="Account Number"><input type="number" id="withdrawAmount" class="input-field" placeholder="Amount (BDT)" min="200"><p style="font-size:11px; color:#64748b; text-align:center;">Min: ৳200 | Available: ৳<span id="withdrawAvail">0</span></p><button class="btn-primary" onclick="window.submitWithdraw()">Submit Request</button><button class="btn-primary btn-cancel" onclick="window.closeModal('withdrawModal')">Cancel</button></div></div>
+    <!-- Deposit Modal with Limit Info -->
+    <div class="modal-overlay" id="depositModal">
+        <div class="modal-content">
+            <h3>💰 Add Deposit</h3>
+            <div class="method-selector">
+                <button class="method-btn active" id="methodBkash" onclick="window.selectDepositMethod('bkash')">📱 bKash</button>
+                <button class="method-btn" id="methodNagad" onclick="window.selectDepositMethod('nagad')">📱 Nagad</button>
+            </div>
+            <div style="background:#f0fdf4; padding:14px; border-radius:14px; margin:10px 0; text-align:center;">Send to: <strong id="depositNumber">01798792581</strong></div>
+            <input type="text" id="depositTrxId" class="input-field" placeholder="Transaction ID">
+            <input type="text" id="depositFromAccount" class="input-field" placeholder="Your Account Number">
+            <input type="number" id="depositAmount" class="input-field" placeholder="Amount (BDT)" min="1">
+            <span id="depositMinMsg" class="limit-info" style="color:#dc2626; display:none;"></span>
+            <span id="depositLimitInfo" class="limit-info">💰 Minimum deposit: ৳<span id="minDepositValue">50</span></span>
+            <button class="btn-primary" onclick="window.addDeposit()">Submit Deposit Request</button>
+            <button class="btn-primary btn-cancel" onclick="window.closeModal('depositModal')">Cancel</button>
+        </div>
+    </div>
+    
+    <!-- Withdraw Modal with Limit Info -->
+    <div class="modal-overlay" id="withdrawModal">
+        <div class="modal-content">
+            <h3>💸 Withdraw Income</h3>
+            <div class="method-selector">
+                <button class="method-btn active" id="wMethodBkash" onclick="window.selectWithdrawMethod('bkash')">📱 bKash</button>
+                <button class="method-btn" id="wMethodNagad" onclick="window.selectWithdrawMethod('nagad')">📱 Nagad</button>
+            </div>
+            <input type="text" id="withdrawAccount" class="input-field" placeholder="Account Number">
+            <input type="number" id="withdrawAmount" class="input-field" placeholder="Amount (BDT)" min="1">
+            <span id="withdrawMinMsg" class="limit-info" style="color:#dc2626; display:none;"></span>
+            <span id="withdrawLimitInfo" class="limit-info">💸 Minimum withdrawal: ৳<span id="minWithdrawValue">200</span></span>
+            <p style="font-size:11px; color:#64748b; text-align:center; margin-top:5px;">Available: ৳<span id="withdrawAvail">0</span></p>
+            <button class="btn-primary" onclick="window.submitWithdraw()">Submit Request</button>
+            <button class="btn-primary btn-cancel" onclick="window.closeModal('withdrawModal')">Cancel</button>
+        </div>
+    </div>
+    
     <div class="modal-overlay" id="editProfileModal"><div class="modal-content"><h3>✏️ Edit Profile</h3><input type="text" id="editName" class="input-field" placeholder="Full Name"><input type="text" id="editUsername" class="input-field" placeholder="Username"><input type="password" id="editPassword" class="input-field" placeholder="New Password (optional)"><button class="btn-primary" onclick="window.saveProfile()">Save Changes</button><button class="btn-primary btn-cancel" onclick="window.closeModal('editProfileModal')">Cancel</button></div></div>
     <div class="dropdown-menu" id="profileMenu"><div onclick="window.openEditProfile()"><i class="fas fa-user-edit"></i> Edit Profile</div><div onclick="window.openDepositModal()"><i class="fas fa-plus-circle"></i> Add Deposit</div><div onclick="window.openWithdrawModal()"><i class="fas fa-arrow-up"></i> Withdraw</div><div onclick="window.showAbout()"><i class="fas fa-info-circle"></i> About</div></div>
     
@@ -365,10 +407,27 @@
         let currentIsHomeJob = false;
         let selectedImageFile = null;
         
-        const PLATFORM_FEE = 0.08;
-        const REFERRAL_BONUS = 2;
-        const REFERRAL_COMMISSION = 0.03;
-        // ✅ আপডেটেড রেফার লিংক - আপনার সাইটের লিংক
+        // Network links
+        let networkLinks = {
+            youtube: 'https://youtube.com/@unitask',
+            facebook: 'https://facebook.com/unitask',
+            telegram: 'https://t.me/unitask2026',
+            instagram: 'https://instagram.com/unitask',
+            support: 'https://t.me/unitaskSupport'
+        };
+        
+        let appSettings = {
+            minWithdraw: 200,
+            minDeposit: 50,
+            minWorkers: 10,
+            minBudgetPerPerson: 2,
+            platformFee: 8,
+            referralBonus: 2,
+            referralCommissionPercent: 3,
+            bkashNumber: '01798792581',
+            nagadNumber: '01806213100'
+        };
+        
         const SITE_URL = "https://saimun2519.github.io/unitask/";
         
         const translations = {
@@ -395,9 +454,7 @@
                 await navigator.clipboard.writeText(text);
                 const originalHtml = buttonElement.innerHTML;
                 buttonElement.innerHTML = '<i class="fas fa-check"></i> Copied!';
-                setTimeout(() => {
-                    buttonElement.innerHTML = originalHtml;
-                }, 1500);
+                setTimeout(() => { buttonElement.innerHTML = originalHtml; }, 1500);
                 showNotification('✅ Copied to clipboard!', 'success');
             } catch (err) {
                 const textarea = document.createElement('textarea');
@@ -408,9 +465,7 @@
                 document.body.removeChild(textarea);
                 const originalHtml = buttonElement.innerHTML;
                 buttonElement.innerHTML = '<i class="fas fa-check"></i> Copied!';
-                setTimeout(() => {
-                    buttonElement.innerHTML = originalHtml;
-                }, 1500);
+                setTimeout(() => { buttonElement.innerHTML = originalHtml; }, 1500);
                 showNotification('✅ Copied to clipboard!', 'success');
             }
         };
@@ -441,8 +496,19 @@
             }
         };
         
-        window.selectDepositMethod = function(method) { depositMethod = method; document.getElementById('depositNumber').innerText = method === 'bkash' ? '01798792581' : '01806213100'; document.getElementById('methodBkash').classList.toggle('active', method === 'bkash'); document.getElementById('methodNagad').classList.toggle('active', method === 'nagad'); };
-        window.selectWithdrawMethod = function(method) { withdrawMethod = method; document.getElementById('wMethodBkash').classList.toggle('active', method === 'bkash'); document.getElementById('wMethodNagad').classList.toggle('active', method === 'nagad'); };
+        window.selectDepositMethod = function(method) { 
+            depositMethod = method; 
+            document.getElementById('depositNumber').innerText = method === 'bkash' ? appSettings.bkashNumber : appSettings.nagadNumber;
+            document.getElementById('methodBkash').classList.toggle('active', method === 'bkash'); 
+            document.getElementById('methodNagad').classList.toggle('active', method === 'nagad'); 
+        };
+        
+        window.selectWithdrawMethod = function(method) { 
+            withdrawMethod = method; 
+            document.getElementById('wMethodBkash').classList.toggle('active', method === 'bkash'); 
+            document.getElementById('wMethodNagad').classList.toggle('active', method === 'nagad'); 
+        };
+        
         window.switchTaskTab = function(tab) { activeTaskTab = tab; renderTasks(); };
         window.showLogin = function() { document.getElementById('loginPage').style.display = 'flex'; document.getElementById('registerPage').style.display = 'none'; document.getElementById('forgotPage').style.display = 'none'; };
         window.showRegister = function() { document.getElementById('loginPage').style.display = 'none'; document.getElementById('registerPage').style.display = 'flex'; document.getElementById('forgotPage').style.display = 'none'; };
@@ -453,9 +519,7 @@
         window.toggleNotificationPanel = function() {
             const panel = document.getElementById('notificationPanel');
             panel.classList.toggle('show');
-            if (panel.classList.contains('show')) {
-                renderNotificationPanel();
-            }
+            if (panel.classList.contains('show')) { renderNotificationPanel(); }
         };
         
         function renderNotificationPanel() {
@@ -468,13 +532,7 @@
             notifications.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt)).forEach(notif => {
                 const unreadClass = !notif.read ? 'unread' : '';
                 const date = notif.createdAt ? new Date(notif.createdAt).toLocaleString() : '';
-                html += `
-                    <div class="notification-item ${unreadClass}" onclick="window.markNotificationRead('${notif.id}')">
-                        <div class="notification-title">${escapeHtml(notif.title || 'New Notification')}</div>
-                        <div class="notification-message">${escapeHtml(notif.message || '')}</div>
-                        <div class="notification-time">${date}</div>
-                    </div>
-                `;
+                html += `<div class="notification-item ${unreadClass}" onclick="window.markNotificationRead('${notif.id}')"><div class="notification-title">${escapeHtml(notif.title || 'New Notification')}</div><div class="notification-message">${escapeHtml(notif.message || '')}</div><div class="notification-time">${date}</div></div>`;
             });
             container.innerHTML = html;
         }
@@ -495,36 +553,19 @@
         window.viewFullProof = function(proofText, imageUrl, workerName, submittedAt) {
             let content = '';
             if (proofText) {
-                content += `
-                    <div class="proof-text-box">
-                        <strong>📝 Proof Description:</strong><br>
-                        ${escapeHtml(proofText)}
-                    </div>
-                    <button class="copy-btn" onclick="copyToClipboard('${escapeHtml(proofText).replace(/'/g, "\\'")}', this)">
-                        <i class="fas fa-copy"></i> Copy Proof Text
-                    </button>
-                `;
+                content += `<div class="proof-text-box"><strong>📝 Proof Description:</strong><br>${escapeHtml(proofText)}</div><button class="copy-btn" onclick="copyToClipboard('${escapeHtml(proofText).replace(/'/g, "\\'")}', this)"><i class="fas fa-copy"></i> Copy Proof Text</button>`;
             }
             if (imageUrl) {
-                content += `
-                    <div class="proof-image-box">
-                        <strong>🖼️ Screenshot:</strong><br>
-                        <img src="${imageUrl}" alt="Proof Screenshot" onclick="window.open('${imageUrl}','_blank')">
-                    </div>
-                `;
+                content += `<div class="proof-image-box"><strong>🖼️ Screenshot:</strong><br><img src="${imageUrl}" alt="Proof Screenshot" onclick="window.open('${imageUrl}','_blank')"></div>`;
             }
-            if (!proofText && !imageUrl) {
-                content = '<div class="proof-text-box">No proof provided</div>';
-            }
+            if (!proofText && !imageUrl) { content = '<div class="proof-text-box">No proof provided</div>'; }
             content += `<div style="margin-top:12px; font-size:11px; color:#64748b;">👤 Submitted by: ${escapeHtml(workerName)} | 📅 ${new Date(submittedAt).toLocaleString()}</div>`;
             document.getElementById('proofDetailTitle').innerHTML = '📄 Proof Details';
             document.getElementById('proofDetailContent').innerHTML = content;
             document.getElementById('proofDetailModal').style.display = 'flex';
         };
         
-        window.copyReferLink = function(link, buttonElement) {
-            copyToClipboard(link, buttonElement);
-        };
+        window.copyReferLink = function(link, buttonElement) { copyToClipboard(link, buttonElement); };
         
         function hasUserSubmittedToUserTask(taskId) {
             const isOfficial = homeJobs.some(j => j.id === taskId);
@@ -534,6 +575,45 @@
         
         function isTaskCompleted(task) {
             return (task.completedCount || 0) >= (task.totalWorkers || 1);
+        }
+        
+        async function loadSettings() {
+            try {
+                const settingsDoc = await getDoc(doc(db, 'settings', 'appSettings'));
+                if (settingsDoc.exists()) {
+                    const s = settingsDoc.data();
+                    appSettings = {
+                        minWithdraw: s.minWithdraw || 200,
+                        minDeposit: s.minDeposit || 50,
+                        minWorkers: s.minWorkers || 10,
+                        minBudgetPerPerson: s.minBudgetPerPerson || 2,
+                        platformFee: s.platformFee || 8,
+                        referralBonus: s.referralBonus || 2,
+                        referralCommissionPercent: s.referralCommissionPercent || 3,
+                        bkashNumber: s.bkashNumber || '01798792581',
+                        nagadNumber: s.nagadNumber || '01806213100'
+                    };
+                }
+                document.getElementById('minDepositValue').innerText = appSettings.minDeposit;
+                document.getElementById('minWithdrawValue').innerText = appSettings.minWithdraw;
+                document.getElementById('depositNumber').innerText = depositMethod === 'bkash' ? appSettings.bkashNumber : appSettings.nagadNumber;
+            } catch(e) { console.log("Settings load error:", e); }
+        }
+        
+        async function loadNetworks() {
+            try {
+                const networksDoc = await getDoc(doc(db, 'settings', 'networks'));
+                if (networksDoc.exists()) {
+                    const n = networksDoc.data();
+                    networkLinks = {
+                        youtube: n.youtube || 'https://youtube.com/@unitask',
+                        facebook: n.facebook || 'https://facebook.com/unitask',
+                        telegram: n.telegram || 'https://t.me/unitask2026',
+                        instagram: n.instagram || 'https://instagram.com/unitask',
+                        support: n.support || 'https://t.me/unitaskSupport'
+                    };
+                }
+            } catch(e) { console.log("Networks load error:", e); }
         }
         
         window.handleLogin = async function() {
@@ -553,7 +633,11 @@
                 }
                 document.getElementById('loginPage').style.display = 'none';
                 document.getElementById('mainApp').style.display = 'block';
-                await loadAllData(); startRealtimeListeners(); refreshAllPages();
+                await loadSettings();
+                await loadNetworks();
+                await loadAllData(); 
+                startRealtimeListeners(); 
+                refreshAllPages();
                 showNotification('✅ Welcome, ' + currentUser.name + '!', 'success');
             } catch (error) { errorDiv.style.display = 'block'; errorDiv.innerHTML = '❌ ' + error.message; }
         };
@@ -567,16 +651,8 @@
             const errorDiv = document.getElementById('registerError');
             const successDiv = document.getElementById('registerSuccess');
             
-            if (!name || !email || !username || !password) { 
-                errorDiv.style.display = 'block'; 
-                errorDiv.innerHTML = '⚠️ Please fill all fields'; 
-                return; 
-            }
-            if (password.length < 6) { 
-                errorDiv.style.display = 'block'; 
-                errorDiv.innerHTML = '⚠️ Password must be at least 6 characters'; 
-                return; 
-            }
+            if (!name || !email || !username || !password) { errorDiv.style.display = 'block'; errorDiv.innerHTML = '⚠️ Please fill all fields'; return; }
+            if (password.length < 6) { errorDiv.style.display = 'block'; errorDiv.innerHTML = '⚠️ Password must be at least 6 characters'; return; }
             errorDiv.style.display = 'none';
             
             try {
@@ -584,11 +660,7 @@
                 const user = userCredential.user;
                 const newReferralCode = user.uid.substring(0, 8);
                 
-                const userData = { 
-                    id: user.uid, name, email, username, depositBalance: 0, incomeBalance: 0, 
-                    referrals: 0, referralEarnings: 0, totalReferralCommission: 0,
-                    referralCode: newReferralCode, referredBy: null, createdAt: new Date().toISOString() 
-                };
+                const userData = { id: user.uid, name, email, username, depositBalance: 0, incomeBalance: 0, referrals: 0, referralEarnings: 0, totalReferralCommission: 0, referralCode: newReferralCode, referredBy: null, createdAt: new Date().toISOString() };
                 
                 if (referralCode) {
                     const usersSnapshot = await getDocs(query(collection(db, 'users'), where('referralCode', '==', referralCode)));
@@ -598,38 +670,15 @@
                         const currentRefs = referrerData.referrals || 0;
                         const currentBonus = referrerData.referralEarnings || 0;
                         const currentDeposit = referrerData.depositBalance || 0;
-                        
-                        await updateDoc(doc(db, 'users', referrer.id), { 
-                            referrals: currentRefs + 1, 
-                            referralEarnings: currentBonus + REFERRAL_BONUS,
-                            depositBalance: currentDeposit + REFERRAL_BONUS
-                        });
-                        
+                        await updateDoc(doc(db, 'users', referrer.id), { referrals: currentRefs + 1, referralEarnings: currentBonus + appSettings.referralBonus, depositBalance: currentDeposit + appSettings.referralBonus });
                         userData.referredBy = referrer.id;
-                        
-                        await addDoc(collection(db, 'notifications'), {
-                            userId: referrer.id,
-                            title: '🎉 New Referral!',
-                            message: `${name} joined using your referral code! You earned ৳${REFERRAL_BONUS} bonus!`,
-                            read: false,
-                            createdAt: new Date().toISOString()
-                        });
+                        await addDoc(collection(db, 'notifications'), { userId: referrer.id, title: '🎉 New Referral!', message: `${name} joined using your referral code! You earned ৳${appSettings.referralBonus} bonus!`, read: false, createdAt: new Date().toISOString() });
                     }
                 }
-                
                 await setDoc(doc(db, 'users', user.uid), userData);
-                
-                successDiv.style.display = 'block'; 
-                successDiv.innerHTML = '✅ Account created! Redirecting to login...';
-                setTimeout(() => { 
-                    successDiv.style.display = 'none'; 
-                    window.showLogin(); 
-                }, 2000);
-                
-            } catch (error) { 
-                errorDiv.style.display = 'block'; 
-                errorDiv.innerHTML = '❌ ' + error.message; 
-            }
+                successDiv.style.display = 'block'; successDiv.innerHTML = '✅ Account created! Redirecting to login...';
+                setTimeout(() => { successDiv.style.display = 'none'; window.showLogin(); }, 2000);
+            } catch (error) { errorDiv.style.display = 'block'; errorDiv.innerHTML = '❌ ' + error.message; }
         };
         
         window.handleForgotPassword = async function() {
@@ -680,6 +729,8 @@
             realtimeUnsubs.push(onSnapshot(doc(db, 'users', currentUser.id), debouncedLoad));
             realtimeUnsubs.push(onSnapshot(query(collection(db, 'notifications'), where('userId', '==', currentUser.id)), debouncedLoad));
             realtimeUnsubs.push(onSnapshot(query(collection(db, 'withdrawals'), where('userId', '==', currentUser.id)), debouncedLoad));
+            realtimeUnsubs.push(onSnapshot(doc(db, 'settings', 'appSettings'), () => loadSettings()));
+            realtimeUnsubs.push(onSnapshot(doc(db, 'settings', 'networks'), () => loadNetworks()));
         }
         
         function refreshAllPages() { renderHome(); renderTasks(); renderShare(); renderProfile(); updateBadge(); renderNotificationPanel(); }
@@ -688,12 +739,8 @@
             const b = document.getElementById('notificationBadge'); 
             const n = notifications.filter(x => !x.read).length; 
             if (b) { 
-                if (n > 0) { 
-                    b.style.display = 'flex'; 
-                    b.innerText = n > 99 ? '99+' : n; 
-                } else { 
-                    b.style.display = 'none'; 
-                } 
+                if (n > 0) { b.style.display = 'flex'; b.innerText = n > 99 ? '99+' : n; } 
+                else { b.style.display = 'none'; } 
             } 
         }
         
@@ -746,10 +793,7 @@
                     status: 'pending', submittedAt: new Date().toISOString()
                 });
                 if (!currentIsHomeJob && task.postedBy && task.postedBy !== currentUser.id) {
-                    await addDoc(collection(db, 'notifications'), {
-                        userId: task.postedBy, title: 'New Submission', message: `${currentUser.name} submitted work for "${task.title}"`,
-                        read: false, createdAt: new Date().toISOString()
-                    });
+                    await addDoc(collection(db, 'notifications'), { userId: task.postedBy, title: 'New Submission', message: `${currentUser.name} submitted work for "${task.title}"`, read: false, createdAt: new Date().toISOString() });
                 }
                 showNotification('✅ Work submitted! Waiting for admin approval.', 'success');
                 window.closeModal('submitProofModal');
@@ -766,7 +810,7 @@
                 document.getElementById('submissionsModal').style.display = 'flex';
                 return;
             }
-            let tableHtml = `<table class="submissions-table"><thead><tr><th>ID</th><th>Worker</th><th>Proof</th><th>Submitted</th><th>Status</th><th>Action</th></tr></thead><tbody>`;
+            let tableHtml = `<table class="submissions-table"><thead><tr><th>ID</th><th>Worker</th><th>Proof</th><th>Submitted</th><th>Status</th><th>Action</th></table></thead><tbody>`;
             taskSubmissions.forEach(sub => {
                 const proofHtml = sub.textProof ? `<div>📝 <span class="proof-link" onclick="window.viewFullProof('${escapeHtml(sub.textProof).replace(/'/g, "\\'")}', '${sub.imageUrl || ''}', '${escapeHtml(sub.workerName)}', '${sub.submittedAt}')">Click to view</span></div>` : '';
                 const imageHtml = sub.imageUrl ? `<div>🖼️ <span class="proof-link" onclick="window.viewFullProof('${escapeHtml(sub.textProof || '').replace(/'/g, "\\'")}', '${sub.imageUrl}', '${escapeHtml(sub.workerName)}', '${sub.submittedAt}')">View Image</span></div>` : '';
@@ -775,14 +819,7 @@
                 if (sub.status === 'pending') statusBadge = '<span class="badge-pending">Pending</span>';
                 else if (sub.status === 'approved') statusBadge = '<span class="badge-approved">Approved</span>';
                 else if (sub.status === 'rejected') statusBadge = '<span class="badge-rejected">Rejected</span>';
-                tableHtml += `<tr>
-                    <td>${sub.id.slice(-6)}</td>
-                    <td>${escapeHtml(sub.workerName || '-')}</td>
-                    <td>${proofHtml} ${imageHtml}</td>
-                    <td>${date}</td>
-                    <td>${statusBadge}</td>
-                    <td>${sub.status === 'pending' ? `<button class="action-btn approve" onclick="window.approveSubmission('${sub.id}', ${sub.budget}, '${sub.workerId}')" style="padding:4px 8px; font-size:10px;">✅</button><button class="action-btn reject" onclick="window.rejectSubmission('${sub.id}')" style="padding:4px 8px; font-size:10px;">❌</button>` : '-'}</td>
-                </tr>`;
+                tableHtml += `<tr><td>${sub.id.slice(-6)}</td><td>${escapeHtml(sub.workerName || '-')}</td><td>${proofHtml} ${imageHtml}</td><td>${date}</td><td>${statusBadge}</td><td>${sub.status === 'pending' ? `<button class="action-btn approve" onclick="window.approveSubmission('${sub.id}', ${sub.budget}, '${sub.workerId}')" style="padding:4px 8px; font-size:10px;">✅</button><button class="action-btn reject" onclick="window.rejectSubmission('${sub.id}')" style="padding:4px 8px; font-size:10px;">❌</button>` : '-'}</td></tr>`;
             });
             tableHtml += `</tbody></table>`;
             document.getElementById('submissionsModalTitle').innerHTML = `📋 Submissions for "${task?.title || 'Task'}"`;
@@ -799,28 +836,17 @@
                     if (userDoc.exists()) {
                         const currentIncome = userDoc.data().incomeBalance || 0;
                         await updateDoc(userRef, { incomeBalance: currentIncome + budget });
-                        
                         const referredBy = userDoc.data().referredBy;
                         if (referredBy) {
                             const referrerRef = doc(db, 'users', referredBy);
                             const referrerDoc = await getDoc(referrerRef);
                             if (referrerDoc.exists()) {
-                                const commission = budget * REFERRAL_COMMISSION;
+                                const commission = budget * (appSettings.referralCommissionPercent / 100);
                                 const currentCommission = referrerDoc.data().totalReferralCommission || 0;
                                 const currentDeposit = referrerDoc.data().depositBalance || 0;
                                 const currentEarnings = referrerDoc.data().referralEarnings || 0;
-                                await updateDoc(referrerRef, {
-                                    totalReferralCommission: currentCommission + commission,
-                                    depositBalance: currentDeposit + commission,
-                                    referralEarnings: currentEarnings + commission
-                                });
-                                await addDoc(collection(db, 'notifications'), {
-                                    userId: referredBy,
-                                    title: '💰 Referral Commission!',
-                                    message: `You earned ৳${formatBDT(commission)} (${REFERRAL_COMMISSION*100}%) from your referral's work!`,
-                                    read: false,
-                                    createdAt: new Date().toISOString()
-                                });
+                                await updateDoc(referrerRef, { totalReferralCommission: currentCommission + commission, depositBalance: currentDeposit + commission, referralEarnings: currentEarnings + commission });
+                                await addDoc(collection(db, 'notifications'), { userId: referredBy, title: '💰 Referral Commission!', message: `You earned ৳${formatBDT(commission)} (${appSettings.referralCommissionPercent}%) from your referral's work!`, read: false, createdAt: new Date().toISOString() });
                             }
                         }
                     }
@@ -836,10 +862,7 @@
                 const sub = subDoc.data();
                 await updateDoc(doc(db, 'submissions', subId), { status: 'rejected' });
                 if (sub && sub.workerId) {
-                    await addDoc(collection(db, 'notifications'), {
-                        userId: sub.workerId, title: 'Submission Rejected', message: `Your submission for "${sub.taskTitle}" was rejected.`,
-                        read: false, createdAt: new Date().toISOString()
-                    });
+                    await addDoc(collection(db, 'notifications'), { userId: sub.workerId, title: 'Submission Rejected', message: `Your submission for "${sub.taskTitle}" was rejected.`, read: false, createdAt: new Date().toISOString() });
                 }
                 showNotification('❌ Submission rejected', 'success');
                 await loadAllData();
@@ -872,9 +895,9 @@
             if (!task) return;
             currentDeleteTaskId = taskId;
             const totalPaid = (task.budget || 0) * (task.completedCount || 0);
-            const platformFeeKept = totalPaid * PLATFORM_FEE;
+            const platformFeeKept = totalPaid * (appSettings.platformFee / 100);
             const totalCost = (task.budget || 0) * (task.totalWorkers || 1);
-            const totalWithFee = totalCost * (1 + PLATFORM_FEE);
+            const totalWithFee = totalCost * (1 + (appSettings.platformFee / 100));
             const refundAmount = totalWithFee - totalPaid;
             document.getElementById('deleteTaskInfo').innerHTML = `<strong>${escapeHtml(task.title)}</strong><br>📊 Total Workers: ${task.totalWorkers || 1}<br>✅ Completed: ${task.completedCount || 0}<br>💰 Paid to workers: ৳${formatBDT(totalPaid)}<br>📈 Platform fee kept: ৳${formatBDT(platformFeeKept)}<br>🔄 Refund amount: ৳${formatBDT(refundAmount)}`;
             document.getElementById('deleteTaskModal').style.display = 'flex';
@@ -886,7 +909,7 @@
             try {
                 const totalPaid = (task.budget || 0) * (task.completedCount || 0);
                 const totalCost = (task.budget || 0) * (task.totalWorkers || 1);
-                const totalWithFee = totalCost * (1 + PLATFORM_FEE);
+                const totalWithFee = totalCost * (1 + (appSettings.platformFee / 100));
                 const refundAmount = totalWithFee - totalPaid;
                 if (refundAmount > 0) {
                     const currentBalance = currentUser.depositBalance || 0;
@@ -900,23 +923,31 @@
             } catch(e) { showNotification('Error: ' + e.message, 'error'); }
         };
         
-        window.pauseJob = async function(taskId) {
-            try { await updateDoc(doc(db, 'tasks', taskId), { status: 'paused' }); showNotification('Job paused', 'success'); await loadAllData(); } catch(e) { showNotification('Error: ' + e.message, 'error'); }
-        };
-        
-        window.resumeJob = async function(taskId) {
-            try { await updateDoc(doc(db, 'tasks', taskId), { status: 'open' }); showNotification('Job resumed', 'success'); await loadAllData(); } catch(e) { showNotification('Error: ' + e.message, 'error'); }
-        };
+        window.pauseJob = async function(taskId) { try { await updateDoc(doc(db, 'tasks', taskId), { status: 'paused' }); showNotification('Job paused', 'success'); await loadAllData(); } catch(e) { showNotification('Error: ' + e.message, 'error'); } };
+        window.resumeJob = async function(taskId) { try { await updateDoc(doc(db, 'tasks', taskId), { status: 'open' }); showNotification('Job resumed', 'success'); await loadAllData(); } catch(e) { showNotification('Error: ' + e.message, 'error'); } };
         
         window.submitWithdraw = async function() {
             const account = document.getElementById('withdrawAccount')?.value?.trim() || '';
             const amount = parseFloat(document.getElementById('withdrawAmount')?.value) || 0;
+            const msgSpan = document.getElementById('withdrawMinMsg');
             if (!account || !amount) { showNotification('⚠️ Fill all fields', 'error'); return; }
-            if (amount < 200) { showNotification('⚠️ Minimum withdrawal ৳200', 'error'); return; }
+            if (amount < appSettings.minWithdraw) { msgSpan.style.display = 'block'; msgSpan.innerText = `⚠️ Minimum withdrawal is ৳${appSettings.minWithdraw}`; setTimeout(() => msgSpan.style.display = 'none', 3000); return; }
             if (amount > (currentUser.incomeBalance || 0)) { showNotification('⚠️ Insufficient balance', 'error'); return; }
             await addDoc(collection(db, 'withdrawals'), { userId: currentUser.id, userName: currentUser.name, amount, account, method: withdrawMethod, status: 'pending', requestedAt: new Date().toISOString() });
             showNotification('✅ Withdraw request submitted! Admin will review.', 'success');
             window.closeModal('withdrawModal');
+        };
+        
+        window.addDeposit = async function() {
+            const trx = document.getElementById('depositTrxId')?.value?.trim() || '';
+            const from = document.getElementById('depositFromAccount')?.value?.trim() || '';
+            const amount = parseFloat(document.getElementById('depositAmount')?.value) || 0;
+            const msgSpan = document.getElementById('depositMinMsg');
+            if (!trx || !from || !amount) { showNotification('⚠️ Fill all fields', 'error'); return; }
+            if (amount < appSettings.minDeposit) { msgSpan.style.display = 'block'; msgSpan.innerText = `⚠️ Minimum deposit is ৳${appSettings.minDeposit}`; setTimeout(() => msgSpan.style.display = 'none', 3000); return; }
+            await addDoc(collection(db, 'deposits'), { userId: currentUser.id, userName: currentUser.name, amount, transactionId: trx, fromAccount: from, method: depositMethod, status: 'pending', createdAt: new Date().toISOString() });
+            showNotification('✅ Deposit request submitted!', 'success');
+            window.closeModal('depositModal');
         };
         
         function renderHome() {
@@ -925,7 +956,7 @@
             const openJobs = homeJobs.filter(j => j.status === 'open');
             if (openJobs.length > 0) { html += `<div class="jobs-grid">`; openJobs.forEach(job => { const completed = job.completedCount || 0; const total = job.totalWorkers || 1; const pct = Math.min((completed / total) * 100, 100); html += `<div class="job-card" onclick="window.openSubmitModal('${job.id}', true)"><div class="job-reward">৳${formatBDT(job.budget)}</div><div class="job-title">${escapeHtml(job.title)}</div><div class="progress-container"><div class="progress-bar" style="width: ${pct}%;"></div></div><div class="progress-stats"><span>✅ ${completed} done</span><span>👥 ${completed}/${total}</span></div><div class="submit-badge">📤 Submit Work</div></div>`; }); html += `</div>`; }
             else { html += `<div class="empty-state"><i class="fas fa-folder-open"></i><p>No official tasks available</p></div>`; }
-            html += `<div class="section-title">📱 Official Channels</div><div class="social-strip"><div class="social-icon telegram" onclick="window.open('https://t.me/unitask2026','_blank')"><i class="fab fa-telegram"></i></div><div class="social-icon youtube" onclick="window.open('https://youtube.com/@unitask','_blank')"><i class="fab fa-youtube"></i></div><div class="social-icon facebook" onclick="window.open('https://facebook.com/unitask','_blank')"><i class="fab fa-facebook"></i></div><div class="social-icon instagram" onclick="window.open('https://instagram.com/unitask','_blank')"><i class="fab fa-instagram"></i></div></div><button class="support-btn" onclick="window.open('https://t.me/unitaskSupport','_blank')"><i class="fab fa-telegram"></i> Join Support Group</button>`;
+            html += `<div class="section-title">📱 Official Channels</div><div class="social-strip"><div class="social-icon telegram" onclick="window.open('${networkLinks.telegram}','_blank')"><i class="fab fa-telegram"></i></div><div class="social-icon youtube" onclick="window.open('${networkLinks.youtube}','_blank')"><i class="fab fa-youtube"></i></div><div class="social-icon facebook" onclick="window.open('${networkLinks.facebook}','_blank')"><i class="fab fa-facebook"></i></div><div class="social-icon instagram" onclick="window.open('${networkLinks.instagram}','_blank')"><i class="fab fa-instagram"></i></div></div><button class="support-btn" onclick="window.open('${networkLinks.support}','_blank')"><i class="fab fa-telegram"></i> Join Support Group</button>`;
             container.innerHTML = html;
         }
         
@@ -958,8 +989,8 @@
                 } else { html += `<div class="empty-state"><i class="fas fa-clipboard-list"></i><p>You haven't posted any tasks yet</p></div>`; }
                 html += `</div>`;
             } else if (activeTaskTab === 'post') {
-                html += `<div class="section-title">📝 Post New Task</div><div class="review-notice">⏳ All posted tasks require Admin review before going live. Your deposit will be deducted immediately.</div><div style="background:white; border-radius:24px; padding:20px; margin-top:10px;"><input type="text" id="newTaskTitle" class="input-field" placeholder="Task Title (e.g., YouTube Like)"><textarea id="newTaskDesc" class="input-field" placeholder="Describe what workers need to do..." rows="3"></textarea><input type="number" id="newTaskBudget" class="input-field" placeholder="Budget per person (BDT) - Min 2" min="2"><input type="number" id="newTaskWorkers" class="input-field" placeholder="Workers needed - Min 10" min="10" value="10"><div class="fee-info">📊 Platform Fee: <strong>8%</strong></div><div class="total-display" id="totalDisplay">Total: ৳0.00</div><button class="btn-primary" id="postTaskBtn" onclick="window.createTask()">📤 Post Task</button></div>`;
-                setTimeout(() => { const budgetInput = document.getElementById('newTaskBudget'); const workersInput = document.getElementById('newTaskWorkers'); if (budgetInput && workersInput) { const updateTotal = () => { const budget = parseFloat(budgetInput.value) || 0; const workers = parseInt(workersInput.value) || 0; const sub = budget * workers; const fee = sub * 0.08; const totalDiv = document.getElementById('totalDisplay'); if (totalDiv) totalDiv.innerHTML = `Subtotal: ৳${formatBDT(sub)} + Fee (8%): ৳${formatBDT(fee)} = <strong>৳${formatBDT(sub + fee)}</strong>`; }; budgetInput.addEventListener('input', updateTotal); workersInput.addEventListener('input', updateTotal); updateTotal(); } }, 100);
+                html += `<div class="section-title">📝 Post New Task</div><div class="review-notice">⏳ All posted tasks require Admin review before going live. Your deposit will be deducted immediately.</div><div style="background:white; border-radius:24px; padding:20px; margin-top:10px;"><input type="text" id="newTaskTitle" class="input-field" placeholder="Task Title (e.g., YouTube Like)"><textarea id="newTaskDesc" class="input-field" placeholder="Describe what workers need to do..." rows="3"></textarea><input type="number" id="newTaskBudget" class="input-field" placeholder="Budget per person (BDT) - Min 2" min="2"><input type="number" id="newTaskWorkers" class="input-field" placeholder="Workers needed - Min 10" min="10" value="10"><div class="fee-info">📊 Platform Fee: <strong>${appSettings.platformFee}%</strong></div><div class="total-display" id="totalDisplay">Total: ৳0.00</div><button class="btn-primary" id="postTaskBtn" onclick="window.createTask()">📤 Post Task</button></div>`;
+                setTimeout(() => { const budgetInput = document.getElementById('newTaskBudget'); const workersInput = document.getElementById('newTaskWorkers'); if (budgetInput && workersInput) { const updateTotal = () => { const budget = parseFloat(budgetInput.value) || 0; const workers = parseInt(workersInput.value) || 0; const sub = budget * workers; const fee = sub * (appSettings.platformFee / 100); const totalDiv = document.getElementById('totalDisplay'); if (totalDiv) totalDiv.innerHTML = `Subtotal: ৳${formatBDT(sub)} + Fee (${appSettings.platformFee}%): ৳${formatBDT(fee)} = <strong>৳${formatBDT(sub + fee)}</strong>`; }; budgetInput.addEventListener('input', updateTotal); workersInput.addEventListener('input', updateTotal); updateTotal(); } }, 100);
             }
             container.innerHTML = html;
         }
@@ -967,9 +998,8 @@
         function renderShare() {
             const container = document.getElementById('sharePage'); if (!currentUser) return;
             const refCode = currentUser.referralCode || currentUser.id?.substring(0, 8) || '';
-            // ✅ আপডেটেড রেফার লিংক - আপনার সাইটের লিংক
             const referLink = `${SITE_URL}?ref=${refCode}`;
-            container.innerHTML = `<div class="ref-card"><h3>👥 Refer & Earn</h3><p style="color:#64748b; margin-bottom:4px;">🎁 Get ${REFERRAL_BONUS} BDT per referral + ${REFERRAL_COMMISSION*100}% commission from their earnings!</p><div class="ref-link-box"><span style="font-size:10px; word-break:break-all;">${referLink}</span><i class="fas fa-copy copy-icon" onclick="copyReferLink('${referLink}', this)" title="Copy Link"></i></div><div class="stats-row"><div class="stat-item"><div class="stat-value">${currentUser.referrals || 0}</div><div class="stat-label">Referrals</div></div><div class="stat-item"><div class="stat-value">৳${formatBDT(currentUser.referralEarnings || 0)}</div><div class="stat-label">Total Earned</div></div><div class="stat-item"><div class="stat-value">৳${formatBDT(currentUser.totalReferralCommission || 0)}</div><div class="stat-label">3% Commission</div></div></div><div style="margin-top:12px; background:#f0fdf4; padding:10px; border-radius:12px;"><p style="font-size:11px; color:#2e7d32;"><i class="fas fa-info-circle"></i> Your Referral Code: <strong>${refCode}</strong></p></div></div>`;
+            container.innerHTML = `<div class="ref-card"><h3>👥 Refer & Earn</h3><p style="color:#64748b; margin-bottom:4px;">🎁 Get ${appSettings.referralBonus} BDT per referral + ${appSettings.referralCommissionPercent}% commission from their earnings!</p><div class="ref-link-box"><span style="font-size:10px; word-break:break-all;">${referLink}</span><i class="fas fa-copy copy-icon" onclick="copyReferLink('${referLink}', this)" title="Copy Link"></i></div><div class="stats-row"><div class="stat-item"><div class="stat-value">${currentUser.referrals || 0}</div><div class="stat-label">Referrals</div></div><div class="stat-item"><div class="stat-value">৳${formatBDT(currentUser.referralEarnings || 0)}</div><div class="stat-label">Total Earned</div></div><div class="stat-item"><div class="stat-value">৳${formatBDT(currentUser.totalReferralCommission || 0)}</div><div class="stat-label">${appSettings.referralCommissionPercent}% Commission</div></div></div><div style="margin-top:12px; background:#f0fdf4; padding:10px; border-radius:12px;"><p style="font-size:11px; color:#2e7d32;"><i class="fas fa-info-circle"></i> Your Referral Code: <strong>${refCode}</strong></p></div></div>`;
         }
         
         function renderProfile() {
@@ -995,9 +1025,9 @@
             const workers = parseInt(workersEl?.value) || 0;
             if (!title) { showNotification('⚠️ Please enter a task title', 'error'); return; }
             if (!desc) { showNotification('⚠️ Please enter a description', 'error'); return; }
-            if (budget < 2) { showNotification('⚠️ Minimum budget ৳2 per person', 'error'); return; }
-            if (workers < 10) { showNotification('⚠️ Minimum 10 workers required', 'error'); return; }
-            const total = (budget * workers) * (1 + PLATFORM_FEE);
+            if (budget < appSettings.minBudgetPerPerson) { showNotification(`⚠️ Minimum budget ৳${appSettings.minBudgetPerPerson} per person`, 'error'); return; }
+            if (workers < appSettings.minWorkers) { showNotification(`⚠️ Minimum ${appSettings.minWorkers} workers required`, 'error'); return; }
+            const total = (budget * workers) * (1 + (appSettings.platformFee / 100));
             if ((currentUser.depositBalance || 0) < total) { showNotification(`⚠️ Insufficient balance. Need ৳${formatBDT(total)}`, 'error'); return; }
             isPosting = true;
             if (btn) { btn.disabled = true; btn.innerText = '⏳ Posting...'; }
@@ -1018,11 +1048,23 @@
             setTimeout(() => { isPosting = false; if (btn) { btn.disabled = false; btn.innerText = '📤 Post Task'; } }, 3000);
         };
         
-        window.openDepositModal = function() { document.getElementById('depositModal').style.display = 'flex'; window.selectDepositMethod('bkash'); document.getElementById('profileMenu').style.display = 'none'; };
-        window.openWithdrawModal = function() { document.getElementById('withdrawAvail').innerText = formatBDT(currentUser.incomeBalance || 0); document.getElementById('withdrawModal').style.display = 'flex'; window.selectWithdrawMethod('bkash'); document.getElementById('profileMenu').style.display = 'none'; };
+        window.openDepositModal = function() { 
+            document.getElementById('minDepositValue').innerText = appSettings.minDeposit;
+            document.getElementById('depositModal').style.display = 'flex'; 
+            window.selectDepositMethod('bkash'); 
+            document.getElementById('profileMenu').style.display = 'none'; 
+        };
+        
+        window.openWithdrawModal = function() { 
+            document.getElementById('minWithdrawValue').innerText = appSettings.minWithdraw;
+            document.getElementById('withdrawAvail').innerText = formatBDT(currentUser.incomeBalance || 0); 
+            document.getElementById('withdrawModal').style.display = 'flex'; 
+            window.selectWithdrawMethod('bkash'); 
+            document.getElementById('profileMenu').style.display = 'none'; 
+        };
+        
         window.openEditProfile = function() { document.getElementById('editName').value = currentUser.name || ''; document.getElementById('editUsername').value = currentUser.username || ''; document.getElementById('editPassword').value = ''; document.getElementById('editProfileModal').style.display = 'flex'; document.getElementById('profileMenu').style.display = 'none'; };
         window.saveProfile = async function() { const name = document.getElementById('editName').value.trim(); const username = document.getElementById('editUsername').value.trim(); if (!name || !username) { showNotification('⚠️ Fill required fields', 'error'); return; } await updateDoc(doc(db, 'users', currentUser.id), { name, username }); currentUser.name = name; currentUser.username = username; showNotification('✅ Profile updated!', 'success'); window.closeModal('editProfileModal'); refreshAllPages(); };
-        window.addDeposit = async function() { const trx = document.getElementById('depositTrxId')?.value?.trim() || ''; const from = document.getElementById('depositFromAccount')?.value?.trim() || ''; const amount = parseFloat(document.getElementById('depositAmount')?.value) || 0; if (!trx || !from || !amount) { showNotification('⚠️ Fill all fields', 'error'); return; } if (amount < 50) { showNotification('⚠️ Minimum deposit ৳50', 'error'); return; } await addDoc(collection(db, 'deposits'), { userId: currentUser.id, userName: currentUser.name, amount, transactionId: trx, fromAccount: from, method: depositMethod, status: 'pending', createdAt: new Date().toISOString() }); showNotification('✅ Deposit request submitted!', 'success'); window.closeModal('depositModal'); };
         
         document.getElementById('notificationBell')?.addEventListener('click', (e) => { e.stopPropagation(); window.toggleNotificationPanel(); });
         document.addEventListener('click', function(e) { 
@@ -1037,10 +1079,21 @@
         document.getElementById('screenshotLabel')?.addEventListener('click', function(e) { e.preventDefault(); document.getElementById('screenshotInput').click(); });
         
         onAuthStateChanged(auth, async (user) => {
-            if (user) { const userDoc = await getDoc(doc(db, 'users', user.uid)); if (userDoc.exists()) { currentUser = { id: user.uid, ...userDoc.data() }; document.getElementById('loginPage').style.display = 'none'; document.getElementById('mainApp').style.display = 'block'; await loadAllData(); startRealtimeListeners(); refreshAllPages(); } }
+            if (user) { 
+                await loadSettings();
+                await loadNetworks();
+                const userDoc = await getDoc(doc(db, 'users', user.uid)); 
+                if (userDoc.exists()) { currentUser = { id: user.uid, ...userDoc.data() }; } 
+                document.getElementById('loginPage').style.display = 'none'; 
+                document.getElementById('mainApp').style.display = 'block'; 
+                await loadAllData(); 
+                startRealtimeListeners(); 
+                refreshAllPages(); 
+            }
             else { document.getElementById('mainApp').style.display = 'none'; document.getElementById('loginPage').style.display = 'flex'; }
         });
         
-        console.log("🚀 UniTask v18.0 - Referral Link: " + SITE_URL);
+        console.log("🚀 UniTask - Settings and Networks fully loaded from Admin Panel!");
     </script>
 </body>
+</html>
